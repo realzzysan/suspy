@@ -3,10 +3,25 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "preinstall": "npx only-allow bun",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:migrate": "bun db:check && drizzle-kit migrate",
+    "db:check": "drizzle-kit check",
+    "db:studio": "drizzle-kit studio"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/pg": "^8.15.4",
+    "drizzle-kit": "^0.31.4",
+    "pg": "^8.16.3"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.2",
+    "postgres": "^3.4.7"
   }
 }
