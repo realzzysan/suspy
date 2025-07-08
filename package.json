@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow bun",
+    "start": "bun run src/index.ts",
+    "start:discord": "bun run src/discord/index.ts",
+    "start:telegram": "bun run src/telegram/index.ts",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:migrate": "bun db:check && drizzle-kit migrate",
@@ -21,6 +24,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@google/genai": "^1.8.0",
     "drizzle-orm": "^0.44.2",
     "postgres": "^3.4.7"
   }
