@@ -9,14 +9,8 @@ const toRun = {
 console.log(`Launching ${Object.keys(toRun).filter(key => toRun[key as keyof typeof toRun]).map(val => chalk.greenBright(val)).join(" and ")}...\n`);
 
 // Execute run functions for enabled services
-if (toRun.discord) {
-    Bun.spawn(["bun", "start:discord"], {
+Object.keys(toRun).filter(key => toRun[key as keyof typeof toRun]).forEach(async (key) => {
+    Bun.spawn(["bun", `start:${key}`], {
         stdio: ["inherit", "inherit", "inherit"]
     });
-}
-
-if (toRun.telegram) {
-    Bun.spawn(["bun", "start:telegram"], {
-        stdio: ["inherit", "inherit", "inherit"]
-    });
-}
+});
