@@ -150,17 +150,20 @@ const formatLog = (color: boolean = true) => printf(info => {
     return text;
 });
 
-let logger: Logger;
 type InitLogger = 'normal' | 'discord' | 'telegram';
-export const createLogger = (name: InitLogger = 'normal') => {
+const createLogger = () => {
 
-    // Check if logger is already initialized
-    if (logger) return logger;
-
-    const filename = `${getTime(true)}${name === 'normal' ? '' : `-${name}`}.log`;
-
+    const filePathMatch = Bun.main.match(/[/\\]([^/\\]+)[/\\][^/\\]*$/);
+    const name: InitLogger = filePathMatch && filePathMatch[1] === 'discord' 
+        ? 'discord' 
+        : filePathMatch && filePathMatch[1] === 'telegram'
+            ? 'telegram'
+            : 'normal';
+    
+    const filename = `${getTime(true)}.log`;
+    
     // Winston instance with proper configuration
-    logger = winston.createLogger({
+    const logger = winston.createLogger({
         level: 'info',
         format: combine(
             errors({ stack: true }), // Enable error stack traces
@@ -175,7 +178,7 @@ export const createLogger = (name: InitLogger = 'normal') => {
             new winston.transports.File({
                 level: process.env.DEBUG === 'true' ? 'debug' : 'info',
                 filename,
-                dirname: path.join(process.cwd(), 'logs'),
+                dirname: path.join(process.cwd(), 'logs', name === 'normal' ? '' : name),
                 lazy: true,
                 format: formatLog(false)
             }),
@@ -185,4 +188,5 @@ export const createLogger = (name: InitLogger = 'normal') => {
     return logger;
 }
 
-export default createLogger;
+const logger: Logger = createLogger();
+export default logger;

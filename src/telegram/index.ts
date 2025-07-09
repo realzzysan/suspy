@@ -1,7 +1,7 @@
-import createLogger from "@/shared/lib/utils/logger";
-const logger = createLogger('telegram');
+import logger from "@/shared/lib/utils/logger";
 
 export const run = async () => {
+
     // Make sure it has bot token set
     if (!process.env.TELEGRAM_TOKEN || process.env.TELEGRAM_TOKEN.length === 0) {
         logger.error("Please set telegram bot token first in env before running this script.");
