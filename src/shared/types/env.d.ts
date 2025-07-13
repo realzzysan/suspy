@@ -7,6 +7,10 @@ declare global {
             DISCORD_TOKEN: string?;
             TELEGRAM_TOKEN: string?;
 
+            // Discord bot client id
+            // For slash commands registration
+            DISCORD_CLIENT_ID: string?;
+
             // Gemini API key
             GEMINI_API_KEY: string;
 

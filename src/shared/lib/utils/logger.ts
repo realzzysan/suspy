@@ -113,7 +113,7 @@ const stackParser = (stack: string, color: boolean = true) => {
         .join('\n');
 }
 
-const formatLog = (color: boolean = true) => printf(info => {
+const formatLog = (color: boolean = true, prefix?: string) => printf(info => {
     //console.log(info, '\n\n\n\n\n');
     const level = stripVTControlCharacters(info.level);
     let message = info.message;
@@ -145,7 +145,7 @@ const formatLog = (color: boolean = true) => printf(info => {
     }
 
     const levelColor = level === 'error' ? chalk.redBright : level === 'warn' ? chalk.yellowBright : level === 'info' ? chalk.blueBright : chalk.whiteBright;
-    const text = `[${chalk.grey(getTime())}] [${levelColor.bold(level.toUpperCase())}]: ${message}`;
+    const text = `[${chalk.grey(getTime())}] ${prefix ? `(${prefix}) ` : ''}[${levelColor.bold(level.toUpperCase())}]: ${message}`;
     if (!color) return stripVTControlCharacters(text);
     return text;
 });
@@ -172,7 +172,7 @@ const createLogger = () => {
         ),
         transports: [
             new winston.transports.Console({
-                format: formatLog(true),
+                format: formatLog(true, name === 'discord' ? 'DC' : name === 'telegram' ? 'TG' : undefined),
                 level: process.env.DEBUG === 'true' ? 'debug' : 'info',
             }),
             new winston.transports.File({

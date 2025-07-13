@@ -21,9 +21,17 @@ export const emojis: Record<EmojiName, {
     setup: {
         discord: '<:setup:1392477461077426347>',
         telegram: '⚙️'
+    },
+    previous: {
+        discord: '<:prev:1394003871524978810>',
+        telegram: '⬅️'
+    },
+    next: {
+        discord: '<:next:1394003881545175162>',
+        telegram: '➡️'
     }
 };
 
-export type EmojiName = 'success' | 'warning' | 'error' | 'info' | 'setup';
+export type EmojiName = 'success' | 'warning' | 'error' | 'info' | 'setup' | 'previous' | 'next';
 export type DiscordEmoji = `<${"a" | ""}:${string}:${string}>`;
 export default emojis;

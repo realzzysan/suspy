@@ -31,5 +31,13 @@
       "@/*": ["src/*"],
     }
   },
-  "include": ["src/**/*.ts", "src/shared/types/**/*.d.ts", "drizzle.config.ts"],
+  "include": [
+    "src/**/*.ts", 
+    "src/shared/types/**/*.d.ts", 
+    "drizzle.config.ts", // drizzle
+
+    // discord & telegram
+    "src/discord/types/index.d.ts",
+    "src/telegram/types/index.d.ts",
+  ],
 }

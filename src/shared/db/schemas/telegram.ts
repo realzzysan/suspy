@@ -7,14 +7,15 @@ import {
   integer,
   index,
 } from 'drizzle-orm/pg-core'
+import { flaggedLinks } from '@/shared/db/schemas/base';
 
 // Tables
 
 export const telegramUserSettings = pgTable('telegram_user_settings', {
-  id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
+  id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
   userId: integer('user_id').notNull(),
   enableDm: boolean('enable_dm'),
-  createdAt: timestamp('created_at', { withTimezone: false }),
+  createdAt: timestamp('created_at', { withTimezone: false }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: false }),
   lastDmAt: timestamp('last_dm_at', { withTimezone: false }),
 }, (table) => ({
@@ -22,11 +23,12 @@ export const telegramUserSettings = pgTable('telegram_user_settings', {
 }));
 
 export const telegramGroupSettings = pgTable('telegram_group_settings', {
-  id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
-  groupId: integer('group_id').notNull(),
+  id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
+  groupId: integer('group_id').notNull().unique(),
   enable: boolean('enable').notNull(),
   enableDm: boolean('enable_dm'),
-  createdAt: timestamp('created_at', { withTimezone: false }),
+  minimumConfidenceScore: integer('minimum_confidence_score'),
+  createdAt: timestamp('created_at', { withTimezone: false }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: false }),
   lastDetectAt: timestamp('last_detect_at', { withTimezone: false }),
 }, (table) => ({
@@ -34,14 +36,14 @@ export const telegramGroupSettings = pgTable('telegram_group_settings', {
 }));
 
 export const telegramGroupCustomBlocklist = pgTable('telegram_group_custom_blocklist', {
-  id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
+  id: bigint('id', { mode: 'number' }).primaryKey().generatedAlwaysAsIdentity(),
   groupId: integer('group_id').notNull(),
-  flagId: bigint('flag_id', { mode: 'number' }),
+  flagId: bigint('flag_id', { mode: 'number' }).references(() => flaggedLinks.id),
   url: text('url'),
   host: text('host'),
   ignore: boolean('ignore'),
   blockHost: boolean('block_host'),
-  createdAt: timestamp('created_at', { withTimezone: false }),
+  createdAt: timestamp('created_at', { withTimezone: false }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: false }),
   lastDetectAt: timestamp('last_detect_at', { withTimezone: false }),
 });

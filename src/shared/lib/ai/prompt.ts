@@ -16,8 +16,9 @@ Analyze the provided URL and determine whether it is safe or unsafe. Your analys
 * **0.3**: Mostly safe, some minor concern
 * **0.5**: Potentially risky
 * **0.7**: Risky, noticeable deceptive or concerning elements
-* **0.9**: Very risky
-* **1.0**: Definitely very risky — aggressive, manipulative, or malicious intent
+* **0.8**: Very risky, clear intent to manipulate or deceive
+* **0.9**: Extremely risky, strong evidence of malicious intent
+* **1.0**: Definitely extremely risky — aggressive, manipulative, or malicious intent
 
 ## Examples
 
@@ -33,7 +34,7 @@ Only include content inside JSON block, no content allowed outside of it.
 
 \`\`\`json
 {
-  "confident_score": 0.0, // required field
+  "confidence_score": 0.0, // required field
   "url": "https://example.com", // required field
   "block_type": "url", // optional, only required if risky
   "category": "malware", // optional, only required if risky
@@ -55,6 +56,7 @@ Only include content inside JSON block, no content allowed outside of it.
 
 * Do not include any additional text outside of the JSON block.
 * Do not include markdown formatting outside of the JSON code block.
+* Domain names or brand does not count for the score. Negative prompt: "despite .. domain"
 * Do not include numbered references like \[1], \[2], etc.
 * \`block_type\` should be set to \`hostname\` only if the entire domain is believed to be distributing unsafe content and is not a major shared platform.
 * Categories allowed: \`phishing\`, \`pornography\`, \`scam\`, \`malware\`
