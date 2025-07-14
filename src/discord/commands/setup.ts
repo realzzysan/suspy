@@ -66,6 +66,8 @@ export default defineCommand({
                     authorId: interaction.user.id,
                 };
             }
+
+            setupProcessCache.set(interaction.guild!.id, setup);
         }
 
         setup.step = setup.step === 6 ? 5 : setup.step;
