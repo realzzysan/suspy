@@ -9,7 +9,7 @@ export const run = async () => {
     }
 
     // Start the Telegram bot
-    logger.info("Starting Telegram bot...");
+    logger.info("Still not implemented, sorry!");
 }
 
 // Detect if script runned directly
