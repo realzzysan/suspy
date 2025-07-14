@@ -174,6 +174,9 @@ async function handleSetup(
 
                 // Also update client setpresence
                 updatePresence();
+
+                // Also set the cache
+                setupProcessCache.set(interaction.guild!.id, process);
             }
             break;
     }
