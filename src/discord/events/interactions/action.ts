@@ -19,7 +19,7 @@ export default defineEvent({
         if (!interaction.isButton()) return;
         try {
 
-            
+
             // match regex for interaction action key response
             // 2:<server id>:<data id>:<id>:(1-3):(1-2):<random string>
             const match = interaction.customId.match(/^2:(\d+):(\d+):([a-zA-Z0-9_-]+):([1-3]):([1-2]):([a-zA-Z0-9_-]+)$/);

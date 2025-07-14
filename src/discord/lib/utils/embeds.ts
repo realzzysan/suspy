@@ -373,7 +373,7 @@ export const serverActionEmbed = (
                     .setStyle(ButtonStyle.Primary)
                     .setLabel("Continue")
                     .setEmoji(emojis.success.discord.match(/\d{17,}/)?.[0]!)
-                    .setCustomId(`2:${guild.id}:${data.id}:${id}:${action === 'url' ? 1 : 2}:1:${randomId()}` satisfies InteractionActionServerReportKey),
+                    .setCustomId(`2:${guild.id}:${data.id}:${id}:${action === 'url' ? 1 : action === 'hostname' ? 2 : 3}:1:${randomId()}` satisfies InteractionActionServerReportKey),
                 // new ButtonBuilder()
                 //     .setStyle(ButtonStyle.Secondary)
                 //     .setLabel("Cancel")

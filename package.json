@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow bun",
+    "postinstall": "bun db:generate && bun db:push",
     "start": "bun run src/index.ts",
     "start:discord": "bun run src/discord/index.ts",
     "start:telegram": "bun run src/telegram/index.ts",

@@ -26,37 +26,37 @@ export async function getServerCount(): Promise<number> {
     return result[0]?.count || 0;
 }
 
-export async function getServerConfig(serverId: string): Promise<
+export async function getServerConfig(serverId: string, force: boolean = false): Promise<
     typeof discordServerSettings.$inferSelect | null
 > {
     // Check cache first
     const cachedConfig = serverConfigCache.get(serverId);
-    if (cachedConfig) return cachedConfig;
+    if (cachedConfig && !force) return cachedConfig;
 
     const server = await db.select()
         .from(discordServerSettings)
         .where(eq(discordServerSettings.serverId, serverId))
         .limit(1);
 
-    if (server.length > 0) {
+    if (server.length > 0 || force) {
         serverConfigCache.set(serverId, server[0]);
     }
     return server?.[0] || null;
 }
 
-export async function getServerBlocklists(serverId: string): Promise<
+export async function getServerBlocklists(serverId: string, force: boolean = false): Promise<
     BlocklistItem[] | null
 > {
     // Check cache first
     const cachedBlocklist = serverBlocklistCache.get(serverId);
-    if (cachedBlocklist) return cachedBlocklist;
+    if (cachedBlocklist && !force) return cachedBlocklist;
 
     const blocklist = await db.select()
         .from(discordServerBlocklist)
         .leftJoin(flaggedLinks, eq(discordServerBlocklist.flagId, flaggedLinks.id))
         .where(eq(discordServerBlocklist.serverId, serverId));
 
-    if (blocklist.length > 0) {
+    if (blocklist.length > 0 || force) {
         serverBlocklistCache.set(serverId, blocklist);
     }
     return blocklist || null;
@@ -117,39 +117,51 @@ export async function upsertServerBlocklist(serverId: string, data: Partial<type
         updatedAt: new Date(),
     };
 
-    const finalData = {
-        ...discordInitData,
-        ...existingBlocklist?.['discord_server_blocklist'] ?? {},
-        ...discordAfterData,
-
-        flagId: undefined,
-        createdAt: undefined,
-    };
-
-    console.log(`Final data for upsert:`, finalData);
-
     // For update operation, we need to exclude the primary key
     // const updateData = { ...finalData, serverId: undefined };
 
     // Check if existing data
     if (existingBlocklist) {
-        // Update existing entry
-        return await db.update(discordServerBlocklist)
-            .set({
-                ...discordInitData,
-                ...existingBlocklist['discord_server_blocklist'],
-                ...discordAfterData,
-            })
+        // Update existing entry - ONLY update fields that should change
+        const updateData = {
+            // Only include fields that are safe to update
+            status: discordAfterData.status,
+            referenceUrl: discordAfterData.referenceUrl,
+            lastDetectAt: discordAfterData.lastDetectAt,
+            updatedAt: discordAfterData.updatedAt,
+        };
+
+        // Remove undefined values to avoid overwriting with undefined
+        const filteredData = Object.entries(updateData).reduce((acc, [key, value]) => {
+            if (value !== undefined) {
+                acc[key] = value;
+            }
+            return acc;
+        }, {} as Record<string, any>);
+
+        const result = await db.update(discordServerBlocklist)
+            .set(filteredData)
             .where(eq(discordServerBlocklist.id, existingBlocklist.discord_server_blocklist.id))
             .returning();
+
+        // Update cache
+        getServerBlocklists(serverId, true); // Force refresh cache
+
+        return result;
+
     } else {
         // Insert new entry
-        return await db.insert(discordServerBlocklist)
+        const result = await db.insert(discordServerBlocklist)
             .values({
                 ...discordInitData,
-                ...discordAfterData,
+                ...discordAfterData
             })
             .returning();
+
+        // Update cache
+        getServerBlocklists(serverId, true); // Force refresh cache
+
+        return result;
     }
 }
 
@@ -183,21 +195,13 @@ export async function checkURLForServer(serverId: string, url: string) {
     // Check if there's any matching URL that is ignored
     let urlObj = new URL(url);
     urlObj.pathname = urlObj.pathname.replace(/\/$/, ''); // Remove trailing slash for consistency
-    const detected = blocklists.filter(block =>
-        block.flagged_links?.url === urlObj.toString() &&
-        block.discord_server_blocklist.status === 'ignored'
-    );
+    const detected = blocklists.filter(block => block.flagged_links?.url === urlObj.toString());
 
-    if (detected.length > 0) return null;
-
-    const detected2 = blocklists.filter(block =>
-        block.flagged_links?.url === urlObj.toString() &&
-        block.discord_server_blocklist.status === null
-    );
+    if (detected.filter(block => block.discord_server_blocklist.status === 'ignored').length > 0) return null;
 
     const final = {
         ...result,
-        referenceUrl: detected2.length > 0 ? detected2[0]!.discord_server_blocklist.referenceUrl : null
+        referenceUrl: detected.length > 0 ? detected[0]!.discord_server_blocklist.referenceUrl : null
     }
 
     return final;
