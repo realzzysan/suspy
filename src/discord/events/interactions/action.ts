@@ -91,7 +91,7 @@ export default defineEvent({
 
                 // get blocklist
                 const blocklists = await getServerBlocklists(interaction.guild!.id);
-                const blocklist = blocklists?.find(block => block.discord_server_blocklist?.id === parseInt(dataId));
+                const blocklist = blocklists?.find(block => block.discord_server_blocklist?.flagId === parseInt(dataId));
                 const scanResult = blocklist?.flagged_links;
 
                 if (!blocklist || !scanResult) {
