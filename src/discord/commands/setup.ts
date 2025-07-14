@@ -7,6 +7,7 @@ import { setupProcessCache } from "@/discord/events/interactions/setup";
 import db from "@/shared/db";
 import { discordServerSettings } from "@/shared/db/schemas/discord";
 import { eq } from "drizzle-orm";
+import { getServerConfig } from "../lib/actions/db";
 
 export default defineCommand({
     command: new SlashCommandBuilder()
@@ -68,7 +69,7 @@ export default defineCommand({
                 };
             }
 
-            setupProcessCache.set(interaction.guild!.id, setup);
+            getServerConfig(interaction.guild!.id, true);
         }
 
         setup.step = setup.step === 6 ? 5 : setup.step;
