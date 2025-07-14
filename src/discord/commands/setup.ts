@@ -1,13 +1,11 @@
 import { defineCommand } from "@/discord/lib/utils/define";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { checkEmbed, errorEmbed, setupEmbed, takeoverSetupEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
+import { setupEmbed, takeoverSetupEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
 import { MessageFlags } from "discord.js";
-import logger from "@/shared/lib/utils/logger";
 import { setupProcessCache } from "@/discord/events/interactions/setup";
 import db from "@/shared/db";
 import { discordServerSettings } from "@/shared/db/schemas/discord";
 import { eq } from "drizzle-orm";
-import { getServerConfig } from "../lib/actions/db";
 
 export default defineCommand({
     command: new SlashCommandBuilder()
@@ -68,8 +66,6 @@ export default defineCommand({
                     authorId: interaction.user.id,
                 };
             }
-
-            getServerConfig(interaction.guild!.id, true);
         }
 
         setup.step = setup.step === 6 ? 5 : setup.step;

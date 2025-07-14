@@ -1,4 +1,4 @@
-import { setServerConfig } from "@/discord/lib/actions/db";
+import { getServerConfig, setServerConfig } from "@/discord/lib/actions/db";
 import { defineEvent } from "@/discord/lib/utils/define";
 import { errorEmbed, setupEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
 import type { discordServerSettings } from "@/shared/db/schemas/discord";
@@ -176,7 +176,7 @@ async function handleSetup(
                 updatePresence();
 
                 // Also set the cache
-                setupProcessCache.set(interaction.guild!.id, process);
+                getServerConfig(interaction.guild!.id, true);
             }
             break;
     }
