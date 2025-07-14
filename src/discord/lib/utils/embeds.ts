@@ -55,6 +55,32 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                 )
         ];
     }
+    
+    const generatePageButton = (prev: number|boolean|null, next: number|boolean|null) => {
+        let builder = new ActionRowBuilder<MessageActionRowComponentBuilder>()
+
+        if (prev !== null) {
+            let btn = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setLabel("Previous")
+                    .setEmoji(emojis.previous.discord.match(/\d{17,}/)?.[0]!)
+                    .setCustomId(`1:${guild.id}:${prev}:${randomId()}` satisfies InteractionActionSetupKey);
+            if (prev === false) btn = btn.setDisabled(true);
+            builder = builder.addComponents(btn);
+        }
+
+        if (next !== null) {
+            let btn = new ButtonBuilder()
+                .setStyle(ButtonStyle.Primary)
+                .setLabel("Next")
+                .setEmoji(emojis.next.discord.match(/\d{17,}/)?.[0]!)
+                .setCustomId(`1:${guild.id}:${next}:${randomId()}` satisfies InteractionActionSetupKey);
+            if (next === false) btn = btn.setDisabled(true);
+            builder = builder.addComponents(btn);
+        }
+
+        return builder;
+    }
 
     switch (process.step) {
         case 2:
@@ -85,22 +111,7 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                             .setPlaceholder("Select log channel")
                             .setCustomId(`1:${guild.id}:3:${randomId()}` satisfies InteractionActionSetupKey),
                     ),
-                new ActionRowBuilder<MessageActionRowComponentBuilder>()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Secondary)
-                            .setLabel("Previous")
-                            .setEmoji(emojis.previous.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:1:${randomId()}` satisfies InteractionActionSetupKey),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Primary)
-                            .setLabel("Next")
-                            .setEmoji(emojis.next.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:3:${randomId()}` satisfies InteractionActionSetupKey)
-                            .setDisabled(!selectedChannel)
-                    )
+                generatePageButton(process.setupDone ? false : 1, Boolean(selectedChannel) && 3)
             ];
 
         case 3:
@@ -142,22 +153,7 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                                     .setDefault(selectedMinConfidence === 100),
                             )
                     ),
-                new ActionRowBuilder<MessageActionRowComponentBuilder>()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Secondary)
-                            .setLabel("Previous")
-                            .setEmoji(emojis.previous.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:2:${randomId()}` satisfies InteractionActionSetupKey),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Primary)
-                            .setLabel("Next")
-                            .setEmoji(emojis.next.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:4:${randomId()}` satisfies InteractionActionSetupKey)
-                            .setDisabled(typeof selectedMinConfidence !== 'number')
-                    )
+                generatePageButton(2, typeof selectedMinConfidence === 'number' && 4)
             ];
 
         case 4:
@@ -189,22 +185,7 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                                     .setDefault(selectedEnableDM === false),
                             )
                     ),
-                new ActionRowBuilder<MessageActionRowComponentBuilder>()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Secondary)
-                            .setLabel("Previous")
-                            .setEmoji(emojis.previous.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:3:${randomId()}` satisfies InteractionActionSetupKey),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Primary)
-                            .setLabel("Next")
-                            .setEmoji(emojis.next.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:5:${randomId()}` satisfies InteractionActionSetupKey)
-                            .setDisabled(typeof selectedEnableDM !== 'boolean')
-                    )
+                generatePageButton(3, typeof selectedEnableDM === 'boolean' && 5)
             ]
         case 5:
             return [
@@ -213,7 +194,7 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                         new TextDisplayBuilder().setContent(`## ${emojis.setup.discord} \u200b Server Setup - Step 4`),
                     )
                     .addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(`${process.setupDone ? `**Currently enabled:** \`${process.enable ? "Yes" : "No"}\`\nAlso, h` : '**Almost done!**\nH'}ere's your configured server setup:\n\n- Log channel: <#${process.logChannel}> \n- Minimum score: \`${process.minimumConfidenceScore}%\` \n- Enable DM: \`${process.enableDm ? "Yes" : "No"}\` \n\nEnable now?`),
+                        new TextDisplayBuilder().setContent(`${process.setupDone ? `**Currently enabled:** \`${process.enable ? "Yes" : "No"}\`\nAlso, h` : '**Almost done!**\nH'}ere's your configured server setup:\n\n- Log channel: <#${process.logChannel}> \n- Minimum score: \`${process.minimumConfidenceScore}%\` \n- Enable DM: \`${process.enableDm ? "Yes" : "No"}\` \n\n${process.setupDone ? 'Select to enable/disable suspy or use previous to change other settings.' : 'Enable now?'}`),
                     ),
                 new ActionRowBuilder<MessageActionRowComponentBuilder>()
                     .addComponents(
@@ -223,21 +204,14 @@ export const setupEmbed = async (guild: Guild, process?: SetupProcess) => {
                             .setPlaceholder("Select option")
                             .addOptions(
                                 new StringSelectMenuOptionBuilder()
-                                    .setLabel("Enable Suspy!")
+                                    .setLabel((process.setupDone && process.enable) ? "Keep suspy enabled!" : "Enable Suspy!")
                                     .setValue("true"),
                                 new StringSelectMenuOptionBuilder()
-                                    .setLabel("Not yet uhh...")
+                                    .setLabel(process.setupDone ? process.enable ? "Disable suspy" : "Keep suspy disabled" :"Not yet uhh...")
                                     .setValue("false")
                             )
                     ),
-                new ActionRowBuilder<MessageActionRowComponentBuilder>()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setStyle(ButtonStyle.Secondary)
-                            .setLabel("Previous")
-                            .setEmoji(emojis.previous.discord.match(/\d{17,}/)?.[0]!)
-                            .setCustomId(`1:${guild.id}:4:${randomId()}` satisfies InteractionActionSetupKey),
-                    )
+                generatePageButton(4, null)
             ]
         case 6:
             let cmds = await guild.commands.fetch().catch(() => null);
