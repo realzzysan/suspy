@@ -277,7 +277,7 @@ export const takeoverSetupEmbed = (guild: Guild) => {
                     ),
             )
     ]
-}
+};
 
 
 
@@ -293,7 +293,7 @@ export const serverNewLinkEmbed = (
 
     // Build container components
     let container = warningEmbed(
-        `${isNewLink ? 'New unsafe' : 'unsafe'} link detected!`,
+        `${isNewLink ? 'New unsafe' : 'Unsafe'} link detected!`,
         `The bot has detected an unsafe link sent on your discord server.${ref_url ? '\nPlease look on previous report to take action on this link.' : ''}`
     );
 
@@ -312,7 +312,7 @@ export const serverNewLinkEmbed = (
             new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true)
         )
         .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`Sent by: ${message.author}\nMessage: \`\`\`\n${message.content.replaceAll('```', '\\`\\`\\`')}\n\`\`\``)
+            new TextDisplayBuilder().setContent(`Sent by: ${message.author}\nChannel: ${message.channel}\nMessage: \`\`\`\n${message.content.replaceAll('```', '\\`\\`\\`')}\n\`\`\``)
         )
         .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(`-# By ${client.user?.globalName || 'Suspy'}・<t:${moment().unix()}:f>`)

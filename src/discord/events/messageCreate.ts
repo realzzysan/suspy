@@ -72,7 +72,7 @@ export default defineEvent({
                                     id: result.id,
                                     url: result.url,
                                     category: result.category || 'malware',
-                                    confidence_score: result.confidenceScore / 100,
+                                    confidence_score: result.confidenceScore,
                                     first_seen: result.createdAt || new Date(),
                                     block_type: result.blockHost ? 'hostname' : 'url',
                                     reason: result.reason,

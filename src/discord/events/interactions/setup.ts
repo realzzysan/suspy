@@ -176,7 +176,7 @@ async function handleSetup(
                 updatePresence();
 
                 // Also set the cache
-                getServerConfig(interaction.guild!.id, true);
+                setTimeout(() => getServerConfig(interaction.guild!.id, true), 1e3);
             }
             break;
     }
