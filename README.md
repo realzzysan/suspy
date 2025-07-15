@@ -17,13 +17,13 @@ Invite the bot here and run `/setup` after invite:
 <a name="self-host"></a>
 ## 🤔 How about self host this bot myself?
 
-Just follow this instruction to self host this project yourself, or use this button for one click deploy to railway (hosting service).
+Just follow this instruction to self host this project yourself, or use this button for one click deploy to railway (hosting service). If you're a Hack Club Nest member and want to set up this bot on your nest, be sure to also follow [this tutorial](https://hackclub.notion.site/converge-nest).
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/jCoqjT?referralCode=2j7pjj)
 
 ### 🛠️ Requirements
-- Create a Discord bot in [developer portal](https://discord.com/developers/applications)
-- Generate Gemini api key from [ai studio](https//aistudio.com/apikey)
+- Create a Discord bot in [Developer portal](https://discord.com/developers/applications)
+- Generate Gemini api key from [Google AI studio](https://aistudio.google.com/apikey)
 - Spin up postgres database (You can use [Neon service](https://neon.com), [Hackclub Public Postgres](https://guides.hackclub.app/index.php/PostgreSQL) (if you're a nest member), or self-host your own postgres for this.)
 - Installed [`bun`](https://bun.sh) for runtime and package manager.
 
