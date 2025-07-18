@@ -3,7 +3,6 @@ import type { Collection } from "@discordjs/collection";
 
 export type CommandModule = {
   command: SharedSlashCommand;
-  guildOnly?: boolean;
   execute: (interaction: ChatInputCommandInteraction) => Promise<unknown>;
 };
 export type EventModule<K extends keyof ClientEvents = keyof ClientEvents> = {

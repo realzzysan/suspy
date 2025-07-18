@@ -1,5 +1,5 @@
 import { defineCommand } from "@/discord/lib/utils/define";
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ApplicationIntegrationType, ChatInputCommandInteraction, InteractionContextType, SlashCommandBuilder } from "discord.js";
 import { setupEmbed, takeoverSetupEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
 import { MessageFlags } from "discord.js";
 import { setupProcessCache } from "@/discord/events/interactions/setupHandler";
@@ -10,8 +10,9 @@ import { eq } from "drizzle-orm";
 export default defineCommand({
     command: new SlashCommandBuilder()
         .setName("setup")
-        .setDescription("Setup Suspy for your server."),
-    guildOnly: true,
+        .setDescription("Setup Suspy for your server.")
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+        .setContexts([InteractionContextType.Guild]),
     execute: async (interaction) => {
         
         if (!interaction.memberPermissions?.has("ManageGuild")) {

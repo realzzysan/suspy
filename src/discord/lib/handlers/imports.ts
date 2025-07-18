@@ -55,17 +55,11 @@ export const registerCommands = async () => {
     commands.forEach(cmd => client.slashCommands.set(cmd.command.name, cmd));
 
     logger.info(`✔ Imported ${commands.length} slash commands.`);
-
-    // Separate global and guild commands
-    const globalCommands = commands.filter(cmd => !cmd.guildOnly).map(cmd => cmd.command.toJSON());
-    const guildCommands = commands.filter(cmd => cmd.guildOnly).map(cmd => cmd.command.toJSON());
-
     // Register commands
-    registerGlobalCommands(globalCommands);
-    registerGuildCommands(guildCommands);
+    registerAllCommands(commands.map(cmd => cmd.command.toJSON()));
 };
 
-const registerGlobalCommands = async (commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
+const registerAllCommands = async (commands: RESTPostAPIChatInputApplicationCommandsJSONBody[]) => {
     if (commands.length === 0) return;
     if (process.env.DISCORD_CLIENT_ID === undefined && client.isReady()) {
         await new Promise(r => client.once('ready', r));
@@ -78,35 +72,10 @@ const registerGlobalCommands = async (commands: RESTPostAPIChatInputApplicationC
             Routes.applicationCommands(clientId),
             { body: commands }
         );
-        logger.info(`✔ Registered ${commands.length} global commands.`);
+        logger.info(`✔ Registered ${commands.length} slash commands.`);
     } catch (error) {
-        logger.error("✘ Failed to register global commands:", error);
+        logger.error("✘ Failed to register slash commands:", error);
     }
-};
-
-export const registerGuildCommands = async (commands: RESTPostAPIChatInputApplicationCommandsJSONBody[], guilds?: string[]) => {
-    if (commands.length === 0) return;
-
-    if (!client.isReady()) {
-        await new Promise(resolve => client.once('ready', resolve));
-    }
-
-    const finalGuilds = guilds || client.guilds.cache.map(guild => guild.id);
-    let registered = 0;
-
-    for (const guildId of finalGuilds) {
-        try {
-            await rest.put(
-                Routes.applicationGuildCommands(client.user!.id, guildId),
-                { body: commands }
-            );
-            registered++;
-        } catch (error) {
-            logger.error(`✘ Failed to register guild commands for ${guildId}:`, error);
-        }
-    }
-
-    logger.info(`✔ Registered guild commands in ${registered} guilds.`);
 };
 
 export const registerEvents = async () => {

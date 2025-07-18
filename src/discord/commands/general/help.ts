@@ -1,5 +1,5 @@
 import { defineCommand } from "@/discord/lib/utils/define";
-import { ApplicationCommand, ApplicationIntegrationType, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ApplicationCommand, ApplicationIntegrationType, InteractionContextType, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { Collection } from "@discordjs/collection";
 import { errorEmbed, helpEmbed } from "@/discord/lib/utils/embeds";
 
@@ -7,7 +7,8 @@ export default defineCommand({
     command: new SlashCommandBuilder()
         .setName("help")
         .setDescription("Get help with Suspy commands.")
-        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall]),
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall])
+        .setContexts([InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel]),
     execute: async (interaction) => {
         
         let commands: Collection<string, ApplicationCommand> = await interaction.client.application.commands.fetch();

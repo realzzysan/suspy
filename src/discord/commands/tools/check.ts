@@ -1,5 +1,5 @@
 import { defineCommand } from "@/discord/lib/utils/define";
-import { ApplicationIntegrationType, SlashCommandBuilder } from "discord.js";
+import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder } from "discord.js";
 import { checkEmbed, errorEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
 import { checkURL } from "@/discord/lib/actions/db";
 import { MessageFlags } from "discord.js";
@@ -11,6 +11,7 @@ export default defineCommand({
         .setName("check")
         .setDescription("Check if a link is safe or not.")
         .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall])
+        .setContexts([InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel])
         .addStringOption(option =>
             option.setName("url")
                 .setDescription("The URL to check")
