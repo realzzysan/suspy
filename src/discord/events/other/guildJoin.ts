@@ -1,7 +1,7 @@
 import { defineEvent } from "@/discord/lib/utils/define";
 import logger from "@/shared/lib/utils/logger";
 import { client } from "@/discord/index";
-import { registerGuildCommands } from "../lib/handlers/imports";
+import { registerGuildCommands } from "../../lib/handlers/imports";
 import emojis from "@/shared/lib/constant/emojis";
 
 export default defineEvent({
@@ -21,6 +21,7 @@ export default defineEvent({
                 let cmds = await guild.commands.fetch().catch(() => null);
                 const setupCommand = cmds?.find(cmd => cmd.name === 'setup' && cmd.applicationId === client.user!.id);
 
+                // Send a welcome message to the channel
                 await channel.send(`## ${emojis.success.discord} \u200b Thanks for adding Suspy!\n\nTo get started, please run the ${setupCommand ? `</setup:${setupCommand.id}>` : '`/setup`'} command to configure the bot for your server.`);
             } catch {}
         }

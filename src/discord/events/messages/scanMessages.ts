@@ -1,7 +1,7 @@
 import { defineEvent } from "@/discord/lib/utils/define";
 import { checkURLForServer, getServerConfig, upsertServerBlocklist } from "@/discord/lib/actions/db";
 import logger from "@/shared/lib/utils/logger";
-import { dmReminderEmbed, serverNewLinkEmbed } from "../lib/utils/embeds";
+import { dmReminderEmbed, serverNewLinkEmbed } from "../../lib/utils/embeds";
 import { MessageFlags } from "discord.js";
 
 export default defineEvent({

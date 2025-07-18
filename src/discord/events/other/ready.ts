@@ -1,7 +1,7 @@
 import { defineEvent } from "@/discord/lib/utils/define";
 import logger from "@/shared/lib/utils/logger";
 import { ActivityType } from "discord.js";
-import { getServerCount } from "../lib/actions/db";
+import { getServerCount } from "@/discord/lib/actions/db";
 import { client } from "@/discord";
 
 export default defineEvent({
@@ -15,7 +15,7 @@ export default defineEvent({
 
 export const updatePresence = async () => {
     // Get guild count that registered
-    const guildCount = await getServerCount();
+    const guildCount = await getServerCount(true);
 
     // Set client presence
     // Watching x servers

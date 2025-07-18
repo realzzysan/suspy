@@ -1,4 +1,4 @@
-<img src="https://cdn.prod.website-files.com/687553db41022d5ffd35c8b9/6875709aa72d85a86810e21d_suspy_banner_full.png"><br>
+<img src="https://cdn.website-files.com/687553db41022d5ffd35c8b9/6875709aa72d85a86810e21d_suspy_banner_full.png"><br>
 <h1 align="center">Suspy - Link moderation made easy</h1>
 
 <a name="information"></a>
@@ -9,10 +9,13 @@ It can scan messages containing links sent in the server, evaluate how safe they
 
 <a name="invite"></a>
 ## 😁 Cool, but i wanna try first!
-Invite the bot here and run `/setup` after invite: 
+Invite the bot to your server and run `/setup` after invite,
+or add to your user apps (my apps) and use `/check`: 
 
 [![Discord Suspy invite](https://img.shields.io/badge/Invite%20Suspy-5865F2?style=flat&logo=discord&logoColor=ffffff)](https://discord.com/oauth2/authorize?client_id=1392111150807912488)<br>
 (https://discord.com/oauth2/authorize?client_id=1392111150807912488)
+
+![Image of suspy installation options](https://cdn.website-files.com/687553db41022d5ffd35c8b9/6878a800eb7af5dab085a68a_suspy_install.png)
 
 <a name="self-host"></a>
 ## 🤔 How about self host this bot myself?

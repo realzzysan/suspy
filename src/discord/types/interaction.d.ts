@@ -1,4 +1,4 @@
-import type { SetupProcess } from "../commands/setup";
+import type { SetupProcess } from "../commands/moderations/setup";
 
 export const InteractionActionsId = {
   1: "setupAction",

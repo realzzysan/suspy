@@ -15,7 +15,8 @@ import {
 import type {
     MessageActionRowComponentBuilder,
     Message,
-    Guild
+    Guild,
+    ApplicationCommand
 } from 'discord.js';
 
 import moment from 'moment';
@@ -26,7 +27,7 @@ import { colors } from '@/shared/lib/constant/colors';
 
 import type { ScanResultExtended } from '@/shared/types/result';
 import type { InteractionActionServerReportKey, InteractionActionSetupKey, InteractionActionSetupTakeoverKey } from '@/discord/types/interaction';
-import type { SetupProcess } from '@/discord/events/interactions/setup';
+import type { SetupProcess } from '@/discord/events/interactions/setupHandler';
 import { randomUUIDv7 } from 'bun';
 import { automodRuleName } from '../actions/automod';
 
@@ -406,6 +407,21 @@ export const checkEmbed = (data: Required<ScanResultExtended>) => {
                 )
             )
     ]
+}
+
+export const helpEmbed = (guild: boolean, commands: ApplicationCommand[]) => {
+    const commandList = commands.map(command => `- </${command.name}:${command.id}> - ${command.description}`).join("\n");
+    return [new ContainerBuilder()
+        .setAccentColor(colors.warning)
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## ${emojis.info.discord} \u200b Suspy Help Commands`)
+        )
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`Here are the available ${guild ? 'server' : 'user'} commands you can use:`)
+        )
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(commandList)
+        )]
 }
 
 export const errorEmbed = (error?: string) => {

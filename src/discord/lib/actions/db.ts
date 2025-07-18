@@ -20,9 +20,16 @@ const serverBlocklistCache = new LRUCache<string, BlocklistItem[]>({
     ttl: 1000 * 60 * 15, // 15 minutes
 });
 
-export async function getServerCount(): Promise<number> {
-    const result = await db.select({ count: count() })
-        .from(discordServerSettings);
+export async function getServerCount(activeOnly: boolean = false): Promise<number> {
+    let result;
+    if (activeOnly) {
+        result = await db.select({ count: count() })
+            .from(discordServerSettings)
+            .where(eq(discordServerSettings.enable, true));
+    } else {
+        result = await db.select({ count: count() })
+            .from(discordServerSettings);
+    }
     return result[0]?.count || 0;
 }
 

@@ -5,7 +5,7 @@ import type { discordServerSettings } from "@/shared/db/schemas/discord";
 import logger from "@/shared/lib/utils/logger";
 import { ButtonInteraction, MessageFlags, type AnySelectMenuInteraction } from "discord.js";
 import { LRUCache } from "lru-cache";
-import { updatePresence } from "@/discord/events/ready";
+import { updatePresence } from "@/discord/events/other/ready";
 
 export type SetupProcess = Partial<typeof discordServerSettings.$inferSelect> & {
     step:

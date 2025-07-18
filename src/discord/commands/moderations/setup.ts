@@ -2,7 +2,7 @@ import { defineCommand } from "@/discord/lib/utils/define";
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { setupEmbed, takeoverSetupEmbed, warningEmbed } from "@/discord/lib/utils/embeds";
 import { MessageFlags } from "discord.js";
-import { setupProcessCache } from "@/discord/events/interactions/setup";
+import { setupProcessCache } from "@/discord/events/interactions/setupHandler";
 import db from "@/shared/db";
 import { discordServerSettings } from "@/shared/db/schemas/discord";
 import { eq } from "drizzle-orm";

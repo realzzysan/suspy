@@ -1,4 +1,4 @@
-import { GoogleGenAI, type GenerateContentConfig } from '@google/genai';
+import { ApiError, GoogleGenAI, type GenerateContentConfig } from '@google/genai';
 import system_prompts from '@/shared/lib/ai/prompt';
 
 import type { ScanError, ScanResult } from '@/shared/types/result';
@@ -14,6 +14,19 @@ const flaggedLinksCache = new LRUCache<string, typeof flaggedLinks.$inferSelect>
     ttl: 1000 * 60 * 60, // 60 minutes
 });
 
+// Feature for rotating api keys (if have multiple keys set)
+const apiKeys: string[] = process.env.GEMINI_API_KEY.includes(',')
+    ? process.env.GEMINI_API_KEY.split(',').map(key => key.trim())
+    : [process.env.GEMINI_API_KEY];
+
+let apiKeysLastPurge: moment.Moment | null = null;
+const apiKeysLimitCache = new LRUCache<string, number>({
+    max: 10,
+    ttl: 1000 * 60 * 60 * 24, // a day
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+});
+
 export class AIError extends Error {
     options?: ErrorOptions & { reason?: string, url?: string };
     constructor(message: string, options?: ErrorOptions & { reason?: string, url?: string }) {
@@ -25,9 +38,63 @@ export class AIError extends Error {
 
 export type OutputResponse = ScanResult | ScanError;
 
-export const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-});
+export const getAIInstance = () => {
+    /** 
+     * Purge api keys limit on midnight UTC-7
+     * @see https://discuss.ai.google.dev/t/when-is-the-limit-of-requests-per-day-of-ai-studio-gemini-models-updated/1139/3
+     */
+    if (apiKeysLastPurge === null || apiKeysLastPurge.isBefore(moment().utcOffset(-7 * 60).startOf('day'))) {
+        apiKeysLastPurge = moment().utcOffset(-7 * 60).startOf('day');
+        apiKeysLimitCache.clear();
+        logger.debug('API keys limit cache cleared for new day');
+    }
+
+    // Find unused API keys (not in cache) and prioritize them
+    const unusedKeys = apiKeys.filter(key => !apiKeysLimitCache.has(key));
+
+    // If we have unused keys, prioritize them and initialize with 0 usage
+    if (unusedKeys.length > 0) {
+        const selectedKey = unusedKeys[0];
+        if (selectedKey) {
+            apiKeysLimitCache.set(selectedKey, 0);
+            logger.debug(`Using fresh API key: ${selectedKey.substring(0, 8)}...`);
+
+            return {
+                ai: new GoogleGenAI({
+                    apiKey: selectedKey,
+                }),
+                apikey: selectedKey,
+            };
+        }
+    }
+
+    // Get available api keys that haven't exceeded the limit of 1500
+    const availableKeys = apiKeys
+        .map(key => ({
+            key,
+            usage: apiKeysLimitCache.get(key) || 0
+        }))
+        .filter(({ usage }) => usage < 1500)
+        .sort((a, b) => a.usage - b.usage); // Sort by usage (lowest first)
+
+    // if nothing available, throw ai error
+    if (availableKeys.length === 0) {
+        throw new AIError("Ratelimit exceeded for all API keys", {
+            reason: "New scan is not available at the moment."
+        });
+    }
+
+    const selectedKey = availableKeys[0]!.key;
+    logger.debug(`Using API key: ${selectedKey.substring(0, 8)}... (usage: ${availableKeys[0]?.usage}/1500)`);
+
+    return {
+        ai: new GoogleGenAI({
+            apiKey: selectedKey,
+        }),
+        apikey: selectedKey,
+    };
+};
+
 export const config: GenerateContentConfig = {
     maxOutputTokens: 512,
     thinkingConfig: { thinkingBudget: 0 },
@@ -87,20 +154,35 @@ const parse = (input: string): Record<string, any> | null => {
 
 export const generateUrlCheck = async (url: string, addToDb: boolean = false): Promise<OutputResponse | null> => {
     logger.debug(`Asking AI to check URL: ${url}`);
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [{ role: 'user', parts: [{ text: url }] }],
-        config
-    });
 
-    logger.debug(`AI response for URL ${url}:`, response.text);
+    const { ai, apikey } = getAIInstance();
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [{ role: 'user', parts: [{ text: url }] }],
+            config
+        });
 
-    const data = parse(response.text!);
-    if (data && !data?.error && addToDb) {
-        addUrlToDatabase(data as ScanResult);
+        // add to api keys limit cache
+        const currentLimit = apiKeysLimitCache.get(apikey) || 0;
+        apiKeysLimitCache.set(apikey, currentLimit + 1);
+
+        logger.debug(`AI response for URL ${url}:`, response.text);
+
+        const data = parse(response.text!);
+        if (data && !data?.error && addToDb) {
+            addUrlToDatabase(data as ScanResult);
+        }
+
+        return data as OutputResponse | null;
+    } catch (error) {
+        if (error instanceof ApiError && error.status === 429) {
+            logger.debug(`API key ${apikey} exceeded limit, switching to another key.`);
+            apiKeysLimitCache.set(apikey, 1500); // Set to max limit to avoid using this key again
+            return generateUrlCheck(url, addToDb); // Retry with a new key
+        }
+        throw error;
     }
-
-    return data as OutputResponse | null;
 }
 
 export const getFlaggedLink = async (url: string): Promise<
